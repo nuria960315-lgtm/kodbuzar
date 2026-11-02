@@ -4,7 +4,7 @@ Tayyor fayllar:
 
 | Nima | Qayerda |
 |---|---|
-| Imzolangan AAB (Play'ga yuklash uchun) | `release/Kodbuzar-1.0.0.aab` |
+| Imzolangan AAB (Play'ga yuklash uchun) | `release/Kodbuzar-1.0.1.aab` |
 | Sinab ko'rish uchun APK | `release/Kodbuzar.apk` |
 | Do'kon matnlari (EN / RU / UZ) | `store/LISTING.md` |
 | Ikonka 512×512 | `store/icon-512.png` |
@@ -48,7 +48,7 @@ Kalit fayllar (`*.keystore`, `keystore.properties`, `release/`) `.gitignore` da,
    - **Government apps / Financial features / Health:** No.
 3. **Main store listing:** `store/LISTING.md` dagi matnlarni, `store/icon-512.png`, banner va 8 ta skrinshotni yuklang.
    So'ng **Manage translations** orqali Русский va O'zbekcha qo'shing, har biriga o'z papkasidagi rasmlarni va matnni yuklang.
-4. **Testing → Closed testing → Create release** → `release/Kodbuzar-1.0.0.aab` ni yuklang (**Play App Signing** ni qabul qiling:
+4. **Testing → Closed testing → Create release** → `release/Kodbuzar-1.0.1.aab` ni yuklang (**Play App Signing** ni qabul qiling:
    sizning kalitingiz "upload key" bo'ladi, Google ilovani o'z kaliti bilan imzolab tarqatadi).
 5. Tester ro'yxatini qo'shing, havolani ularga yuboring, 14 kun kuting.
 6. Talab bajarilgach: **Production → Create release** → shu AAB (yoki yangisi) → **Review** → **Send for review**. Tekshiruv odatda bir necha kundan 7 kungacha.

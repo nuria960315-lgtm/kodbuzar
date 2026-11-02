@@ -416,7 +416,7 @@ function Board({
       </div>
 
       {m.mode === 'bot' && (
-        <div className="row" style={{ justifyContent: 'center', height: 38, marginTop: 6 }}>
+        <div className="row" style={{ justifyContent: 'center', height: 34, marginTop: 4 }}>
           {botThinking ? (
             <>
               <span className="caption" style={{ fontWeight: 800 }}>{t('thinking', { name: m.names[1] })}</span>

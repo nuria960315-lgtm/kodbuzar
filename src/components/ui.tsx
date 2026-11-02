@@ -589,7 +589,8 @@ export function Elim({
           animate={{ y: 0, opacity: 1 }}
           transition={{ ...softSpring, delay: 0.1 + c * 0.07 }}
         >
-          {Array.from({ length: c === 0 ? 9 : 10 }, (_, k) => (c === 0 ? k + 1 : k)).map((d) => {
+          {Array.from({ length: 10 }, (_, k) => k).map((d) => {
+            if (c === 0 && d === 0) return <span key={d} className="cell ghost" aria-hidden />;
             const auto = eliminated[c][d];
             const man = manual[c][d];
             const out = auto || man;

@@ -433,7 +433,7 @@ input {
 .dotted {
   border: 0;
   height: 0;
-  margin: 12px 4px;
+  margin: 7px 4px;
   border-top: 2.5px dotted rgba(11, 16, 48, 0.75);
 }
 .history {
@@ -494,7 +494,8 @@ input {
   justify-content: center;
   gap: 16px;
   flex: none;
-  height: clamp(112px, 17dvh, 176px);
+  --eh: clamp(136px, 19dvh, 180px);
+  height: var(--eh);
   padding-top: 6px;
 }
 .elim .col {
@@ -517,9 +518,14 @@ input {
   place-items: center;
   color: #fff;
   font-weight: 800;
-  font-size: clamp(10px, 1.65dvh, 14px);
+  /* 10 qator ustun ichiga sig'ishi uchun shrift balandlikdan hisoblanadi */
+  font-size: min(13px, calc((var(--eh) - 24px) / 10 * 0.9));
   line-height: 1;
+  min-height: 0;
   position: relative;
+}
+.elim .cell.ghost {
+  visibility: hidden;
 }
 .elim .cell.out {
   color: #ff2d44;
@@ -1016,4 +1022,45 @@ input {
   padding: 0 6px;
   font-size: 12px;
   letter-spacing: 0.5px;
+}
+
+/* ---------- qoidalar: mumkin / mumkin emas misollari ---------- */
+.ex-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ex-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+.ex-label {
+  flex-basis: 100%;
+  margin-bottom: -2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.ex {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  border: 1px solid transparent;
+}
+.ex.ok {
+  color: #00985a;
+  background: rgba(0, 196, 106, 0.14);
+  border-color: rgba(0, 196, 106, 0.35);
+}
+.ex.bad {
+  color: #e0283a;
+  background: rgba(255, 59, 74, 0.12);
+  border-color: rgba(255, 59, 74, 0.35);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
 }

@@ -52,6 +52,22 @@ export default function How({ onBack }: { onBack: () => void }) {
             <div>
               <div style={{ fontWeight: 800, fontSize: 16 }}>{t(title)}</div>
               <div className="caption">{t(desc)}</div>
+              {title === 's1t' && (
+                <div className="ex-rows">
+                  <div className="ex-row">
+                    <span className="ex-label">{t('exOk')}</span>
+                    {['100', '407', '190'].map((c) => (
+                      <span key={c} className="ex ok">{c}</span>
+                    ))}
+                  </div>
+                  <div className="ex-row">
+                    <span className="ex-label">{t('exBad')}</span>
+                    {['010', '001', '089'].map((c) => (
+                      <span key={c} className="ex bad">{c}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         ))}

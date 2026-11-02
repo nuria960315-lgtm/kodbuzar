@@ -3,7 +3,7 @@
 3 xonali maxfiy kodni topish o'yini (Android va iOS). Kompyuterga qarshi yoki bitta telefonda 1v1.
 
 ## Qoidalar
-- Kod 3 xonali, birinchi raqam 0 bo'lmaydi (`010`, `001` mumkin emas; `089`, `100` mumkin).
+- Kod 3 xonali, birinchi raqam 0 bo'lmaydi (`010`, `001`, `089` mumkin emas; `100`, `407`, `190` mumkin).
 - Taxmindagi raqam **o'z ustunida** to'g'ri bo'lsa hisoblanadi. Natija 0 bo'lsa qizil, 1-3 bo'lsa yashil.
 - 0 natijali taxminning raqamlari o'z ustunidan chiqib ketadi (pastdagi ustunlarda qizil). Raqamni bosib qo'lda ham belgilash mumkin.
 - Kodni birinchi topgan raundni yutadi: 100 ochko + tezlik bonusi (`10 × (10 − taxminlar soni)`).
