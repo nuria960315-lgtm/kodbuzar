@@ -32,7 +32,7 @@ git push -u origin main
 Kalit fayllar (`*.keystore`, `keystore.properties`, `release/`) `.gitignore` da, ular GitHub'ga **chiqmaydi**. Ularni boshqa joyga (USB, parol menejeri) nusxalab qo'ying.
 
 ## 3. Maxfiylik siyosatini e'lon qilish
-1. `docs/privacy.html` ichidagi `[YOUR EMAIL]` ni (3 joyda) o'z emailingizga almashtiring va commit/push qiling.
+1. `docs/privacy.html` dagi aloqa emaili qo`yilgan (nuria960315@gmail.com). O`zgartirmoqchi bo`lsangiz, tahrirlab commit/push qiling.
 2. GitHub repo → **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, folder: `/docs`**.
 3. 1–2 daqiqadan keyin havola tayyor: `https://<foydalanuvchi>.github.io/<repo>/privacy.html`. Shuni Play Console'ga qo'yasiz.
 
