@@ -1,0 +1,407 @@
+import { Fragment, useMemo, type ReactNode } from 'react';
+import { useStore, type Lang } from './storage';
+
+export type { Lang };
+export const LANGS: { id: Lang; short: string; name: string }[] = [
+  { id: 'uz', short: 'UZ', name: "O'zbekcha" },
+  { id: 'ru', short: 'RU', name: 'Русский' },
+  { id: 'en', short: 'EN', name: 'English' },
+];
+
+type Msg = string | ((n: number) => string);
+type Params = Record<string, string | number>;
+
+/** Rus tilidagi ko'plik shakllari: 1 / 2-4 / 5+. */
+const ru1 = (n: number, a: string, b: string, c: string) => {
+  const m = n % 10;
+  const h = n % 100;
+  return h >= 11 && h <= 14 ? c : m === 1 ? a : m >= 2 && m <= 4 ? b : c;
+};
+
+const uz = {
+  tagline: '3 xonali kodni top',
+  gamesN: (n: number) => `${n} o'yin`,
+  winsN: (n: number) => `${n} g'alaba`,
+  bestN: (n: number) => `eng yaxshi ${n}`,
+  vsComputer: 'Kompyuterga qarshi',
+  twoPlayers: 'Ikki kishi · 1v1',
+  rules: 'Qoidalar',
+  history: 'Tarix',
+  settings: 'Sozlamalar',
+  footer: "O'yla • Top • G'alaba qozon",
+  back: 'Orqaga',
+
+  yourName: 'Ismingiz',
+  player1Label: "1-o'yinchi",
+  player2Label: "2-o'yinchi",
+  namePh: 'Ism',
+  difficulty: 'Qiyinlik',
+  easy: 'Oson',
+  medium: "O'rta",
+  hard: 'Qiyin',
+  easyHint: "Kompyuter ko'pincha tasodifiy taxmin qiladi.",
+  mediumHint: "Kompyuter ko'pincha mantiqiy o'ylaydi, ba'zan adashadi.",
+  hardHint: 'Kompyuter har safar eng aqlli taxminni tanlaydi.',
+  setupInfoB: '3 raund.',
+  setupInfo: "Kodni birinchi topgan raundni yutadi. 2 raund yutgan o'yinni yutadi.",
+  startGame: "O'yinni boshlash",
+  player: "O'yinchi",
+  player1: "O'yinchi 1",
+  player2: "O'yinchi 2",
+  computer: 'Kompyuter',
+
+  quitTitle: 'Chiqasizmi?',
+  quitText: "Joriy o'yin saqlanmaydi.",
+  keepPlaying: 'Davom etish',
+  quit: 'Chiqish',
+  roundOf: 'Raund {n}/{m}',
+  secretCode: 'Maxfiy kod',
+  secretTitle: '{name}, kodingizni tanlang',
+  secretHint1: 'Raqib shu 3 xonali sonni topishga harakat qiladi.',
+  secretHint2: "Birinchi raqam 0 bo'la olmaydi, o'rtada va oxirida bo'lishi mumkin.",
+  hideScreen: "Telefon ekranini raqibga ko'rsatmang!",
+  randomCode: 'Tasodifiy kod',
+  sealCode: 'Kodni yashirish',
+  handTitle: 'Telefonni uzating',
+  handText: "Navbat sizda. Raqibingiz ekranga qaramasligi uchun telefonni oling va tayyor bo'lsangiz bosing.",
+  ready: 'Tayyorman',
+  pointsN: (n: number) => `${n} ochko`,
+  thinking: "{name} o'ylayapti",
+  botGuess: '{name} taxmini',
+  botNone: '{name} hali taxmin qilmadi',
+  turnOf: '{name} navbati',
+  check: 'Tekshirish',
+  waiting: 'Kutilmoqda…',
+  dupGuess: 'Bu taxmin allaqachon bor',
+  noGuesses: "Hozircha taxmin yo'q. Birinchi taxminingizni kiriting!",
+  sound: 'Tovush',
+  roundResult: 'Raund {n} natijasi',
+  youCracked: 'Kodni buzdingiz!',
+  botFirst: '{name} oldinroq topdi',
+  nameWon: '{name} yutdi!',
+  foundIn: (n: number) => `${n} ta taxminda topildi`,
+  codeOf: '{name} kodi',
+  earned: 'Olingan ochko',
+  finalResult: 'Yakuniy natija',
+  nextRound: 'Keyingi raund',
+  gameOver: "O'yin tugadi",
+  youWon: "Siz g'olibsiz!",
+  botWon: '{name} yutdi',
+  nameWinner: "{name} g'olib!",
+  bonusN: "+{n} ochko g'alaba bonusi",
+  roundsN: (n: number) => `${n} raund`,
+  playAgain: "Qayta o'ynash",
+  home: 'Bosh sahifa',
+  introTitle: 'Raund {n}',
+  introFirst: "{m} raunddan {w} tasini yuting",
+  introScore: 'Hisob {a} : {b}',
+
+  statGames: "O'yinlar",
+  statWinPc: "G'alaba (PC)",
+  statBest: 'Eng yaxshi',
+  totalPoints: "Jami yig'ilgan ochko:",
+  emptyHist: "Hali o'yin o'ynalmagan.",
+  emptyHist2: 'Birinchi musobaqangizni boshlang!',
+  clearHist: 'Tarixni tozalash',
+  confirmClear: "Butun tarix o'chirilsinmi?",
+  tagWin: "G'alaba",
+  tagLose: "Mag'lubiyat",
+  vsBot: 'Kompyuter, {level}',
+  roundWinner: 'Raund {n}:',
+  guessesN: (n: number) => `${n} taxmin`,
+  pointsLabel: 'Ochko',
+
+  example: 'Misol: maxfiy kod',
+  exampleLine: '456 → 1 · 123 → 0 · 407 → 3 (topildi!)',
+  s1t: 'Maxfiy kod tanlang',
+  s1d: "Har bir o'yinchi 3 xonali son o'ylaydi. Birinchi raqam 0 bo'la olmaydi (010 yoki 001 mumkin emas), lekin o'rtada va oxirida 0 bo'lishi mumkin (089, 100).",
+  s2t: 'Navbat bilan taxmin qiling',
+  s2d: "Barabanlarni aylantirib raqib kodini taxmin qiling va «Tekshirish» ni bosing. Kompyuterga qarshi o'ynaganda raqib o'zi taxmin qiladi.",
+  s3t: "Natijani o'qing",
+  s3d: "Taxmindagi raqam o'z ustunida to'g'ri bo'lsa, yashil son hisoblanadi. Masalan kod 407, taxmin 456: faqat 4 mos tushadi, natija yashil 1. Hech biri mos kelmasa, qizil 0.",
+  s4t: 'Chiqib ketgan raqamlar',
+  s4d: "Taxmin 0 bersa, uning raqamlari o'z ustunidan chiqib ketadi va pastdagi ustunlarda qizil bo'ladi. Siz ham istalgan raqamni bosib qo'lda belgilashingiz mumkin.",
+  s5t: 'Raundni yuting',
+  s5d: "Kodni birinchi topgan raundni yutadi: 100 ochko + tezlik bonusi. 3 raunddan 2 tasini yutgan o'yinni yutadi (+50 bonus).",
+
+  theme: 'Mavzu',
+  themeOcean: 'Okean',
+  themeViolet: 'Binafsha',
+  themeSunset: 'Quyosh',
+  soundVib: 'Tovush va tebranish',
+  soundFx: 'Tovush effektlari',
+  vibration: 'Tebranish',
+  language: 'Til',
+};
+
+type Dict = Record<keyof typeof uz, Msg>;
+
+const ru: Dict = {
+  tagline: 'Угадай трёхзначный код',
+  gamesN: (n) => `${n} ${ru1(n, 'игра', 'игры', 'игр')}`,
+  winsN: (n) => `${n} ${ru1(n, 'победа', 'победы', 'побед')}`,
+  bestN: (n) => `рекорд ${n}`,
+  vsComputer: 'Против компьютера',
+  twoPlayers: 'Вдвоём · 1v1',
+  rules: 'Правила',
+  history: 'История',
+  settings: 'Настройки',
+  footer: 'Думай • Угадывай • Побеждай',
+  back: 'Назад',
+
+  yourName: 'Ваше имя',
+  player1Label: 'Игрок 1',
+  player2Label: 'Игрок 2',
+  namePh: 'Имя',
+  difficulty: 'Сложность',
+  easy: 'Лёгкий',
+  medium: 'Средний',
+  hard: 'Сложный',
+  easyHint: 'Компьютер чаще всего угадывает наугад.',
+  mediumHint: 'Компьютер в основном рассуждает логично, но иногда ошибается.',
+  hardHint: 'Компьютер каждый раз выбирает самую умную догадку.',
+  setupInfoB: '3 раунда.',
+  setupInfo: 'Кто первым угадает код, выигрывает раунд. Победа в 2 раундах — победа в игре.',
+  startGame: 'Начать игру',
+  player: 'Игрок',
+  player1: 'Игрок 1',
+  player2: 'Игрок 2',
+  computer: 'Компьютер',
+
+  quitTitle: 'Выйти?',
+  quitText: 'Текущая игра не сохранится.',
+  keepPlaying: 'Продолжить',
+  quit: 'Выйти',
+  roundOf: 'Раунд {n}/{m}',
+  secretCode: 'Секретный код',
+  secretTitle: '{name}, выберите свой код',
+  secretHint1: 'Соперник будет пытаться угадать это трёхзначное число.',
+  secretHint2: 'Первая цифра не может быть 0, а в середине и в конце — может.',
+  hideScreen: 'Не показывайте экран сопернику!',
+  randomCode: 'Случайный код',
+  sealCode: 'Спрятать код',
+  handTitle: 'Передайте телефон',
+  handText: 'Ваш ход. Возьмите телефон так, чтобы соперник не видел экран, и нажмите, когда будете готовы.',
+  ready: 'Я готов',
+  pointsN: (n) => `${n} ${ru1(n, 'очко', 'очка', 'очков')}`,
+  thinking: '{name} думает',
+  botGuess: 'Попытка: {name}',
+  botNone: '{name} ещё не пробовал',
+  turnOf: 'Ход: {name}',
+  check: 'Проверить',
+  waiting: 'Ожидание…',
+  dupGuess: 'Такая попытка уже была',
+  noGuesses: 'Попыток пока нет. Введите первую!',
+  sound: 'Звук',
+  roundResult: 'Итог раунда {n}',
+  youCracked: 'Вы взломали код!',
+  botFirst: '{name} угадал раньше',
+  nameWon: '{name} побеждает!',
+  foundIn: (n) => `Найден за ${n} ${ru1(n, 'попытку', 'попытки', 'попыток')}`,
+  codeOf: 'Код: {name}',
+  earned: 'Получено очков',
+  finalResult: 'Итоги игры',
+  nextRound: 'Следующий раунд',
+  gameOver: 'Игра окончена',
+  youWon: 'Вы победили!',
+  botWon: '{name} победил',
+  nameWinner: 'Победитель — {name}!',
+  bonusN: '+{n} очков за победу',
+  roundsN: (n) => `${n} ${ru1(n, 'раунд', 'раунда', 'раундов')}`,
+  playAgain: 'Играть снова',
+  home: 'На главную',
+  introTitle: 'Раунд {n}',
+  introFirst: 'Победите в {w} из {m} раундов',
+  introScore: 'Счёт {a} : {b}',
+
+  statGames: 'Игры',
+  statWinPc: 'Победы (ПК)',
+  statBest: 'Рекорд',
+  totalPoints: 'Всего очков:',
+  emptyHist: 'Игр пока нет.',
+  emptyHist2: 'Начните первое состязание!',
+  clearHist: 'Очистить историю',
+  confirmClear: 'Удалить всю историю?',
+  tagWin: 'Победа',
+  tagLose: 'Поражение',
+  vsBot: 'Компьютер, {level}',
+  roundWinner: 'Раунд {n}:',
+  guessesN: (n) => `${n} ${ru1(n, 'попытка', 'попытки', 'попыток')}`,
+  pointsLabel: 'Очки',
+
+  example: 'Пример: секретный код',
+  exampleLine: '456 → 1 · 123 → 0 · 407 → 3 (угадан!)',
+  s1t: 'Выберите секретный код',
+  s1d: 'Каждый игрок загадывает трёхзначное число. Первая цифра не может быть 0 (010 и 001 нельзя), но в середине и в конце 0 допустим (089, 100).',
+  s2t: 'Угадывайте по очереди',
+  s2d: 'Крутите барабаны, чтобы набрать код соперника, и нажмите «Проверить». В игре с компьютером соперник угадывает сам.',
+  s3t: 'Читайте результат',
+  s3d: 'Цифра считается, если стоит на своём месте (в своём столбце). Например, код 407, догадка 456: совпадает только 4, результат — зелёная 1. Если совпадений нет — красный 0.',
+  s4t: 'Выбывшие цифры',
+  s4d: 'Если результат 0, цифры этой догадки выбывают из своих столбцов и краснеют внизу. Любую цифру можно отметить и вручную, нажав на неё.',
+  s5t: 'Выиграйте раунд',
+  s5d: 'Кто первым угадает код, выигрывает раунд: 100 очков + бонус за скорость. Выиграв 2 раунда из 3, вы побеждаете в игре (+50 бонус).',
+
+  theme: 'Тема',
+  themeOcean: 'Океан',
+  themeViolet: 'Фиолет',
+  themeSunset: 'Закат',
+  soundVib: 'Звук и вибрация',
+  soundFx: 'Звуковые эффекты',
+  vibration: 'Вибрация',
+  language: 'Язык',
+};
+
+const en: Dict = {
+  tagline: 'Crack the 3-digit code',
+  gamesN: (n) => `${n} ${n === 1 ? 'game' : 'games'}`,
+  winsN: (n) => `${n} ${n === 1 ? 'win' : 'wins'}`,
+  bestN: (n) => `best ${n}`,
+  vsComputer: 'Vs computer',
+  twoPlayers: 'Two players · 1v1',
+  rules: 'Rules',
+  history: 'History',
+  settings: 'Settings',
+  footer: 'Think • Crack • Win',
+  back: 'Back',
+
+  yourName: 'Your name',
+  player1Label: 'Player 1',
+  player2Label: 'Player 2',
+  namePh: 'Name',
+  difficulty: 'Difficulty',
+  easy: 'Easy',
+  medium: 'Medium',
+  hard: 'Hard',
+  easyHint: 'The computer mostly guesses at random.',
+  mediumHint: 'The computer mostly reasons logically, but sometimes slips.',
+  hardHint: 'The computer picks the smartest guess every time.',
+  setupInfoB: '3 rounds.',
+  setupInfo: 'First to crack the code wins the round. Win 2 rounds to win the game.',
+  startGame: 'Start game',
+  player: 'Player',
+  player1: 'Player 1',
+  player2: 'Player 2',
+  computer: 'Computer',
+
+  quitTitle: 'Leave the game?',
+  quitText: "The current game won't be saved.",
+  keepPlaying: 'Keep playing',
+  quit: 'Leave',
+  roundOf: 'Round {n}/{m}',
+  secretCode: 'Secret code',
+  secretTitle: '{name}, pick your code',
+  secretHint1: 'Your opponent will try to crack this 3-digit number.',
+  secretHint2: 'The first digit cannot be 0; the middle and last digits can.',
+  hideScreen: "Don't show the screen to your opponent!",
+  randomCode: 'Random code',
+  sealCode: 'Hide the code',
+  handTitle: 'Pass the phone',
+  handText: "It's your turn. Take the phone so your opponent can't see the screen, then tap when you're ready.",
+  ready: "I'm ready",
+  pointsN: (n) => `${n} pts`,
+  thinking: '{name} is thinking',
+  botGuess: "{name}'s guess",
+  botNone: "{name} hasn't guessed yet",
+  turnOf: "{name}'s turn",
+  check: 'Check',
+  waiting: 'Waiting…',
+  dupGuess: 'You already tried this guess',
+  noGuesses: 'No guesses yet. Enter your first one!',
+  sound: 'Sound',
+  roundResult: 'Round {n} result',
+  youCracked: 'You cracked the code!',
+  botFirst: '{name} cracked it first',
+  nameWon: '{name} wins!',
+  foundIn: (n) => `Cracked in ${n} ${n === 1 ? 'guess' : 'guesses'}`,
+  codeOf: "{name}'s code",
+  earned: 'Points earned',
+  finalResult: 'Final result',
+  nextRound: 'Next round',
+  gameOver: 'Game over',
+  youWon: 'You won!',
+  botWon: '{name} won',
+  nameWinner: '{name} is the winner!',
+  bonusN: '+{n} points win bonus',
+  roundsN: (n) => `${n} ${n === 1 ? 'round' : 'rounds'}`,
+  playAgain: 'Play again',
+  home: 'Home',
+  introTitle: 'Round {n}',
+  introFirst: 'Win {w} of {m} rounds',
+  introScore: 'Score {a} : {b}',
+
+  statGames: 'Games',
+  statWinPc: 'Wins (PC)',
+  statBest: 'Best',
+  totalPoints: 'Total points:',
+  emptyHist: 'No games played yet.',
+  emptyHist2: 'Start your first match!',
+  clearHist: 'Clear history',
+  confirmClear: 'Delete all history?',
+  tagWin: 'Win',
+  tagLose: 'Loss',
+  vsBot: 'Computer, {level}',
+  roundWinner: 'Round {n}:',
+  guessesN: (n) => `${n} ${n === 1 ? 'guess' : 'guesses'}`,
+  pointsLabel: 'Points',
+
+  example: 'Example: secret code',
+  exampleLine: '456 → 1 · 123 → 0 · 407 → 3 (cracked!)',
+  s1t: 'Pick a secret code',
+  s1d: "Each player thinks of a 3-digit number. The first digit can't be 0 (010 and 001 are not allowed), but the middle and last digits can (089, 100).",
+  s2t: 'Take turns guessing',
+  s2d: "Spin the drums to enter your opponent's code and tap “Check”. Against the computer, it makes its own guesses.",
+  s3t: 'Read the result',
+  s3d: 'A digit counts only if it is correct in its own column. For example, code 407 and guess 456: only 4 matches, so you get a green 1. No matches gives a red 0.',
+  s4t: 'Ruled-out digits',
+  s4d: 'If a guess scores 0, its digits are ruled out of their columns and turn red below. You can also mark any digit by hand by tapping it.',
+  s5t: 'Win the round',
+  s5d: 'The first to crack the code wins the round: 100 points + a speed bonus. Win 2 of 3 rounds to win the game (+50 bonus).',
+
+  theme: 'Theme',
+  themeOcean: 'Ocean',
+  themeViolet: 'Violet',
+  themeSunset: 'Sunset',
+  soundVib: 'Sound & vibration',
+  soundFx: 'Sound effects',
+  vibration: 'Vibration',
+  language: 'Language',
+};
+
+export type Key = keyof typeof uz;
+const dicts: Record<Lang, Dict> = { uz, ru, en };
+
+export type TFn = (key: Key, params?: Params) => string;
+
+export function makeT(lang: Lang): TFn {
+  return (key, params = {}) => {
+    const m = dicts[lang][key] ?? (uz[key] as Msg);
+    if (typeof m === 'function') return m(Number(params.n ?? 0));
+    return m.replace(/\{(\w+)\}/g, (_, k: string) => String(params[k] ?? ''));
+  };
+}
+
+export function useT(): TFn {
+  const { settings } = useStore();
+  return useMemo(() => makeT(settings.lang), [settings.lang]);
+}
+
+export function useLang(): Lang {
+  return useStore().settings.lang;
+}
+
+/** Shablonning {name} qismiga JSX qo'yish uchun: <T k="nameWon" name={<b>Ali</b>} /> */
+export function T({ k, ...nodes }: { k: Key } & Record<string, ReactNode | string>) {
+  const lang = useLang();
+  const raw = dicts[lang][k] ?? uz[k];
+  const text = typeof raw === 'function' ? raw(0) : raw;
+  const parts = text.split(/(\{\w+\})/g);
+  return (
+    <>
+      {parts.map((p, i) => {
+        const m = /^\{(\w+)\}$/.exec(p);
+        return <Fragment key={i}>{m ? (nodes[m[1]] as ReactNode) : p}</Fragment>;
+      })}
+    </>
+  );
+}
